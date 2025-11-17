@@ -1,0 +1,13 @@
+torch
+torchvision
+earthengine-api
+numpy
+pandas
+Pillow
+fastapi
+uvicorn
+mlflow
+google-cloud-storage
+google-cloud-run
+pytest
+scikit-learn

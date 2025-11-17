@@ -1,0 +1,118 @@
+name: Satellite Smart Pipeline
+
+on:
+  schedule:
+    - cron: '0 8 * * *' # Run every day at 8 AM UTC
+  workflow_dispatch:      # Allows you to run this button manually from GitHub UI
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+  SERVICE_NAME: sentinel-api
+  REGION: us-central1
+
+jobs:
+  check-and-train:
+    runs-on: ubuntu-latest
+    outputs:
+      new_data: ${{ steps.check.outputs.new_data }} # Export variable to other jobs
+    
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+      
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      - name: Check for New Data
+        id: check  # This ID is important!
+        run: python src/ingest_data.py # This script must write to GITHUB_OUTPUT
+
+      # Only runs if ingest_data.py set new_data=true
+      - name: Train Model
+        if: steps.check.outputs.new_data == 'true'
+        run: python src/train.py # This script must create model_final.pth
+
+      # Save the newly trained model as an artifact
+      - name: Save Model Artifact
+        if: steps.check.outputs.new_data == 'true'
+        uses: actions/upload-artifact@v3
+        with:
+          name: trained-model
+          path: src/model_final.pth # Upload this specific file
+
+  deploy:
+    # This job depends on the first one finishing
+    needs: check-and-train
+    # CRITICAL: Only run this deploy job if the first job found new data
+    if: needs.check-and-train.outputs.new_data == 'true'
+    
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Download the model that was trained in the 'check-and-train' job
+      - name: Download model artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: trained-model
+          path: src/ # Download the file and place it in the 'src/' directory
+
+      - name: Verify Model Download
+        run: ls -l src/model_final.pth
+
+      # 1. Authenticate to Google Cloud
+      - name: Google Auth
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS }}
+
+      # 2. Setup gcloud CLI
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      # 3. Configure Docker to use Google's registry
+      - name: Configure Docker
+        run: gcloud auth configure-docker
+
+      # 4. Build the Docker Image (it will now include the new model_final.pth)
+      - name: Build Container
+        run: |
+          docker build -t gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }} \
+            -f app/Dockerfile .
+
+      # 5. Push Image to Google Container Registry
+      - name: Push Container
+        run: |
+          docker push gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+
+      # 6. Deploy to Cloud Run
+      - name: Deploy to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v1
+        with:
+          service: ${{ env.SERVICE_NAME }}
+          image: gcr.io/${{ env.PROJECT_ID }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+          region: ${{ env.REGION }}
+          flags: '--allow-unauthenticated --memory=2Gi --cpu=1' # Deploys the new model
+
+      # 7. Show the URL
+      - name: Display Service URL
+        run: |
+          echo "Deployment successful! API is live at:"
+          gcloud run services describe ${{ env.SERVICE_NAME }} --region ${{ env.REGION }} --format 'value(status.url)'
