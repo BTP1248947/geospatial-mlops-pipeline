@@ -3,10 +3,10 @@ stages:
   - deploy
 
 variables:
-  # Define where to store the docker image (GitLab's internal registry)
-  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+  LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
 
-# STAGE 1: Build the Docker Image
+# --- STAGE 1: BUILD ---
 build_image:
   stage: build
   image: docker:24.0.5
@@ -15,20 +15,26 @@ build_image:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    # Build from root context (.) using the file in serve/Dockerfile
-    - docker build -t $DOCKER_IMAGE -f serve/Dockerfile .
+    # Build the image using the Dockerfile in serve/ folder
+    - docker build -t $DOCKER_IMAGE -t $LATEST_IMAGE -f serve/Dockerfile .
     - docker push $DOCKER_IMAGE
+    - docker push $LATEST_IMAGE
 
-# STAGE 2: Deploy to Kubernetes
+# --- STAGE 2: DEPLOY ---
 deploy_k8s:
   stage: deploy
   image: bitnami/kubectl:latest
   script:
-    # 1. Update the image name in k8s.yaml to the one we just built
-    - sed -i "s|LATEST_IMAGE|$DOCKER_IMAGE|g" k8s.yaml
+    # 1. Create the secret from the file variable
+    - kubectl create secret generic google-credentials --from-file=key.json=$GCP_KEY_FILE --dry-run=client -o yaml | kubectl apply -f -
     
-    # 2. Apply the configuration to your cluster
-    # (Requires KUBECONFIG variable set in GitLab CI/CD settings)
+    # 2. Update the K8s manifest with the new image tag
+    - sed -i "s|IMAGE_PLACEHOLDER|$DOCKER_IMAGE|g" k8s.yaml
+    
+    # 3. Apply changes to the cluster
     - kubectl apply -f k8s.yaml
+    
+    # 4. Force restart to pick up changes
+    - kubectl rollout restart deployment/deforestation-inference
   only:
-    - main  # Only deploy when pushing to main branch
+    - main
