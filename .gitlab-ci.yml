@@ -23,7 +23,9 @@ build_image:
 # --- STAGE 2: DEPLOY ---
 deploy_k8s:
   stage: deploy
-  image: bitnami/kubectl:latest
+  image:
+    name: bitnami/kubectl:latest
+    entrypoint: [""]  # <--- THIS IS THE FIX
   script:
     # 1. Create the secret from the file variable
     - kubectl create secret generic google-credentials --from-file=key.json=$GCP_KEY_FILE --dry-run=client -o yaml | kubectl apply -f -
