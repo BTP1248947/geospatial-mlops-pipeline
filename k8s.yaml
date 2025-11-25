@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: deforestation-inference
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: deforestation-inference
+  template:
+    metadata:
+      labels:
+        app: deforestation-inference
+    spec:
+      containers:
+        - name: api
+          # GitLab CI will replace 'LATEST_IMAGE' with the real tag
+          image: LATEST_IMAGE 
+          ports:
+            - containerPort: 8000
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: deforestation-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: deforestation-inference
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000

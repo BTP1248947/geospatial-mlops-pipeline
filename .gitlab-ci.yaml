@@ -1,0 +1,34 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  # Define where to store the docker image (GitLab's internal registry)
+  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+
+# STAGE 1: Build the Docker Image
+build_image:
+  stage: build
+  image: docker:24.0.5
+  services:
+    - docker:24.0.5-dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    # Build from root context (.) using the file in serve/Dockerfile
+    - docker build -t $DOCKER_IMAGE -f serve/Dockerfile .
+    - docker push $DOCKER_IMAGE
+
+# STAGE 2: Deploy to Kubernetes
+deploy_k8s:
+  stage: deploy
+  image: bitnami/kubectl:latest
+  script:
+    # 1. Update the image name in k8s.yaml to the one we just built
+    - sed -i "s|LATEST_IMAGE|$DOCKER_IMAGE|g" k8s.yaml
+    
+    # 2. Apply the configuration to your cluster
+    # (Requires KUBECONFIG variable set in GitLab CI/CD settings)
+    - kubectl apply -f k8s.yaml
+  only:
+    - main  # Only deploy when pushing to main branch
