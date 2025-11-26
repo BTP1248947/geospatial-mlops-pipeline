@@ -14,10 +14,21 @@ spec:
     spec:
       containers:
         - name: api
-          # GitLab CI will replace 'LATEST_IMAGE' with the real tag
-          image: LATEST_IMAGE 
+          # GitLab CI will replace 'IMAGE_PLACEHOLDER' with the real tag
+          image: IMAGE_PLACEHOLDER 
           ports:
             - containerPort: 8000
+          
+          # --- NEW: Configuration for Google Earth Engine Auth ---
+          env:
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/etc/secrets/key.json"
+          volumeMounts:
+            - name: google-creds-vol
+              mountPath: "/etc/secrets"
+              readOnly: true
+          # -------------------------------------------------------
+
           resources:
             requests:
               memory: "1Gi"
@@ -25,11 +36,23 @@ spec:
             limits:
               memory: "2Gi"
               cpu: "1000m"
+      
+      # --- NEW: Volume Definition ---
+      volumes:
+        - name: google-creds-vol
+          secret:
+            secretName: google-credentials
+      # ------------------------------
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: deforestation-service
+  annotations:
+    # These annotations tell AWS to provision a Network Load Balancer (NLB)
+    service.beta.kubernetes.io/aws-load-balancer-type: external
+    service.beta.kubernetes.io/aws-load-balancer-scheme: internet-facing
 spec:
   type: LoadBalancer
   selector:

@@ -1,0 +1,32 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: deforestation-cluster-oregon
+  region: us-west-2
+  version: "1.30"
+
+iam:
+  withOIDC: true
+
+vpc:
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+managedNodeGroups:
+  - name: ng-default
+    instanceType: t3.micro      # <--- CONFIRMED CORRECT
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    privateNetworking: false
+    iam:
+      withAddonPolicies:
+        autoScaler: true
+        albIngress: true
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess

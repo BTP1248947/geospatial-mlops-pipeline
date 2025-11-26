@@ -3,40 +3,57 @@ stages:
   - deploy
 
 variables:
-  DOCKER_IMAGE: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
-  LATEST_IMAGE: $CI_REGISTRY_IMAGE:latest
+  # 1. We use the variable you set in the UI for the repo URI
+  ECR_REPOSITORY_URI: $ECR_REPOSITORY_URI
+  # 2. We construct the tag using the Commit Short SHA
+  DOCKER_IMAGE_TAGGED: $ECR_REPOSITORY_URI:$CI_COMMIT_SHORT_SHA 
 
-# --- STAGE 1: BUILD ---
+# --- STAGE 1: BUILD & PUSH (AWS ECR) ---
 build_image:
   stage: build
   image: docker:24.0.5
   services:
     - docker:24.0.5-dind
+  
   before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    # Install AWS CLI to authenticate with ECR
+    - apk add --no-cache python3 py3-pip
+    - pip install awscli
+    # Log in to ECR
+    - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin $ECR_REPOSITORY_URI
+  
   script:
-    # Build the image using the Dockerfile in serve/ folder
-    - docker build -t $DOCKER_IMAGE -t $LATEST_IMAGE -f serve/Dockerfile .
-    - docker push $DOCKER_IMAGE
-    - docker push $LATEST_IMAGE
+    # Build the Docker image from the root directory
+    - docker build -t $DOCKER_IMAGE_TAGGED -f serve/Dockerfile .
+    # Push the tagged image to your ECR repo
+    - docker push $DOCKER_IMAGE_TAGGED
 
-# --- STAGE 2: DEPLOY ---
+# --- STAGE 2: DEPLOY (AWS EKS) ---
 deploy_k8s:
   stage: deploy
   image:
     name: bitnami/kubectl:latest
-    entrypoint: [""]  # <--- THIS IS THE FIX
+    entrypoint: [""] # Fixes the "unknown command sh" error
+  
   script:
-    # 1. Create the secret from the file variable
+    # 1. Install AWS CLI (needed to talk to EKS)
+    - apt-get update && apt-get install -y python3-pip
+    - pip3 install awscli --break-system-packages
+    
+    # 2. Configure kubectl to talk to your Oregon Cluster
+    - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
+    
+    # 3. Create/Update the Google Credentials Secret
+    # (We pipe the file content into the secret creation command)
     - kubectl create secret generic google-credentials --from-file=key.json=$GCP_KEY_FILE --dry-run=client -o yaml | kubectl apply -f -
     
-    # 2. Update the K8s manifest with the new image tag
-    - sed -i "s|IMAGE_PLACEHOLDER|$DOCKER_IMAGE|g" k8s.yaml
+    # 4. Inject the new Image Tag into k8s.yaml
+    - sed -i "s|IMAGE_PLACEHOLDER|$DOCKER_IMAGE_TAGGED|g" k8s.yaml
     
-    # 3. Apply changes to the cluster
+    # 5. Apply the Deployment
     - kubectl apply -f k8s.yaml
     
-    # 4. Force restart to pick up changes
+    # 6. Force Restart to update the pods
     - kubectl rollout restart deployment/deforestation-inference
   only:
     - main
