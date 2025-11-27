@@ -29,27 +29,35 @@ build_image:
 deploy_k8s:
   stage: deploy
   image: 
-    name: docker:24.0.5  # Switched to this image because it has a working package manager (apk)
+    name: docker:24.0.5
     entrypoint: [""]
   
   script:
-    # 1. Install Dependencies (AWS CLI and kubectl) using apk (Alpine Package Manager)
-    - apk add --no-cache python3 py3-pip curl kubectl
+    # 1. Install Basic Tools (Python, pip, curl)
+    # We REMOVED 'kubectl' from here because it caused the error
+    - apk add --no-cache python3 py3-pip curl
+    
+    # 2. Install AWS CLI
     - pip install awscli --break-system-packages
     
-    # 2. Configure connection to your Oregon Cluster
+    # 3. Install kubectl MANUALLY (The Fix)
+    - curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    - chmod +x kubectl
+    - mv kubectl /usr/local/bin/
+    
+    # 4. Configure connection to your Oregon Cluster
     - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_DEFAULT_REGION
     
-    # 3. Create the Google Key Secret
+    # 5. Create the Google Key Secret
     - kubectl create secret generic google-credentials --from-file=key.json=$GCP_KEY_FILE --dry-run=client -o yaml | kubectl apply -f -
     
-    # 4. Inject the new Image Tag into k8s.yaml
+    # 6. Inject the new Image Tag into k8s.yaml
     - sed -i "s|IMAGE_PLACEHOLDER|$DOCKER_IMAGE_TAGGED|g" k8s.yaml
     
-    # 5. Apply the Deployment
+    # 7. Apply the Deployment
     - kubectl apply -f k8s.yaml
     
-    # 6. Force Restart to make sure the pods update
+    # 8. Force Restart to make sure the pods update
     - kubectl rollout restart deployment/deforestation-inference
   only:
     - main
