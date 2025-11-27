@@ -4,7 +4,7 @@ stages:
 
 variables:
   # 1. We use the variable you set in the UI for the repo URI
-  ECR_REPOSITORY_URI: $ECR_REPOSITORY_URI
+ 
   # 2. We construct the tag using the Commit Short SHA
   DOCKER_IMAGE_TAGGED: $ECR_REPOSITORY_URI:$CI_COMMIT_SHORT_SHA 
 
