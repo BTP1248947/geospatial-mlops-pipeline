@@ -8,6 +8,7 @@ function App() {
   const [years, setYears] = useState([]);
   const [selectedBeforeYear, setSelectedBeforeYear] = useState(null);
   const [selectedAfterYear, setSelectedAfterYear] = useState(null);
+  const [selectedROI, setSelectedROI] = useState('Amazon');
   const [loading, setLoading] = useState(true);
 
   // Initialize theme
@@ -87,6 +88,8 @@ function App() {
               selectedAfterYear={selectedAfterYear}
               onBeforeChange={setSelectedBeforeYear}
               onAfterChange={setSelectedAfterYear}
+              selectedROI={selectedROI}
+              onROIChange={setSelectedROI}
             />
 
             <VisualizationViewer 
