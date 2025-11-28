@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "region": "porto_velho"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -64.0,
+              -8.86
+            ],
+            [
+              -63.8,
+              -8.86
+            ],
+            [
+              -63.8,
+              -8.66
+            ],
+            [
+              -64.0,
+              -8.66
+            ],
+            [
+              -64.0,
+              -8.86
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
