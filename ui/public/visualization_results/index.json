@@ -1,6 +1,15 @@
 {
-  "years": [
-    "india_wayanad_forest",
-    "brazil_novo_progresso"
-  ]
+  "regions": [
+    "brazil_novo_progresso",
+    "india_wayanad_forest"
+  ],
+  "years": {
+    "india_wayanad_forest": [
+      2024
+    ],
+    "brazil_novo_progresso": [
+      2023,
+      2024
+    ]
+  }
 }

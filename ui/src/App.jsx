@@ -5,10 +5,12 @@ import VisualizationViewer from './components/VisualizationViewer';
 
 function App() {
   const [theme, setTheme] = useState('light');
+  const [regions, setRegions] = useState([]);
+  const [yearsData, setYearsData] = useState({});
   const [years, setYears] = useState([]);
   const [selectedBeforeYear, setSelectedBeforeYear] = useState(null);
   const [selectedAfterYear, setSelectedAfterYear] = useState(null);
-  const [selectedROI, setSelectedROI] = useState('Amazon');
+  const [selectedROI, setSelectedROI] = useState('');
   const [loading, setLoading] = useState(true);
 
   // Initialize theme
@@ -31,26 +33,48 @@ function App() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
-  // Fetch available years
+  // Fetch available regions and years
   useEffect(() => {
-    fetch('./public/visualization_results/index.json')
+    fetch('/visualization_results/index.json')
       .then(res => res.json())
       .then(data => {
-        setYears(data.years);
+        // data structure: { regions: ["name1", ...], years: { "name1": [2023, 2024], ... } }
+        setRegions(data.regions || []);
+        setYearsData(data.years || {});
+
+        if (data.regions && data.regions.length > 0) {
+          const initialROI = data.regions[0];
+          setSelectedROI(initialROI);
+          const roiYears = data.years[initialROI] || [];
+          setYears(roiYears);
+          if (roiYears.length >= 1) setSelectedBeforeYear(roiYears[0]);
+          if (roiYears.length >= 1) setSelectedAfterYear(roiYears[roiYears.length - 1]);
+        }
         setLoading(false);
       })
       .catch(err => {
-        console.error("Failed to load years index:", err);
+        console.error("Failed to load index:", err);
         setLoading(false);
       });
   }, []);
 
-  const beforeImage = selectedBeforeYear 
-    ? `./public/visualization_results/before_${selectedBeforeYear}.png` 
+  // Update years when ROI changes
+  useEffect(() => {
+    if (selectedROI && yearsData[selectedROI]) {
+      const roiYears = yearsData[selectedROI];
+      setYears(roiYears);
+      // Reset years if current selection is not in new list, or just default to first/last
+      if (!roiYears.includes(selectedBeforeYear)) setSelectedBeforeYear(roiYears[0]);
+      if (!roiYears.includes(selectedAfterYear)) setSelectedAfterYear(roiYears[roiYears.length - 1]);
+    }
+  }, [selectedROI, yearsData]);
+
+  const beforeImage = selectedBeforeYear && selectedROI
+    ? `/visualization_results/${selectedROI}/before_${selectedBeforeYear}.png`
     : null;
-    
-  const afterImage = selectedAfterYear 
-    ? `./public/visualization_results/after_${selectedAfterYear}.png` 
+
+  const afterImage = selectedAfterYear && selectedROI
+    ? `/visualization_results/${selectedROI}/after_${selectedAfterYear}.png`
     : null;
 
   return (
@@ -62,7 +86,7 @@ function App() {
       </div>
 
       <Header theme={theme} toggleTheme={toggleTheme} />
-      
+
       <main className="w-full max-w-7xl mx-auto px-6 py-12 flex flex-col items-center gap-12 flex-grow relative z-10">
         <div className="text-center space-y-6 max-w-4xl animate-slide-up">
           <h2 className="text-5xl md:text-7xl font-black text-gradient tracking-tight pb-2 drop-shadow-sm">
@@ -82,8 +106,9 @@ function App() {
           </div>
         ) : (
           <div className="w-full flex flex-col gap-12 animate-slide-up delay-200">
-            <YearSelector 
+            <YearSelector
               years={years}
+              regions={regions}
               selectedBeforeYear={selectedBeforeYear}
               selectedAfterYear={selectedAfterYear}
               onBeforeChange={setSelectedBeforeYear}
@@ -92,10 +117,10 @@ function App() {
               onROIChange={setSelectedROI}
             />
 
-            <VisualizationViewer 
+            <VisualizationViewer
               beforeImage={beforeImage}
               afterImage={afterImage}
-              maskImage={selectedBeforeYear ? `./public/visualization_results/mask_${selectedBeforeYear}.png` : null}
+              maskImage={selectedBeforeYear && selectedROI ? `/visualization_results/${selectedROI}/mask_${selectedBeforeYear}.png` : null}
               beforeYear={selectedBeforeYear}
               afterYear={selectedAfterYear}
             />
