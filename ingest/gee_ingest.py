@@ -49,6 +49,48 @@ def sentinel_composite(aoi, start, end, cloud_pct):
     img = col.median().select(["B2","B3","B4","B8","B11","B12"])
     return img
 
+def get_best_scene(aoi, start, end, cloud_pct):
+    col = (
+        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+        .filterBounds(aoi)
+        .filterDate(start, end)
+        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_pct))
+        .sort("CLOUDY_PIXEL_PERCENTAGE")
+    )
+    size = col.size().getInfo()
+    if size == 0:
+        raise RuntimeError(f"No scenes found for {start}..{end} (cloud<{cloud_pct})")
+    
+    # Pick the single best image (least cloudy)
+    img = col.first().clip(aoi).select(["B2","B3","B4","B8","B11","B12"])
+    
+    # Get metadata for logging
+    props = col.first().toDictionary().getInfo()
+    print(f"[INFO] Best scene found: {props.get('system:index')} (Cloud: {props.get('CLOUDY_PIXEL_PERCENTAGE')}%)")
+    
+    return img
+
+def get_latest_scene(aoi, start, end, cloud_pct):
+    col = (
+        ee.ImageCollection("COPERNICUS/S2_SR_HARMONIZED")
+        .filterBounds(aoi)
+        .filterDate(start, end)
+        .filter(ee.Filter.lt("CLOUDY_PIXEL_PERCENTAGE", cloud_pct))
+        .sort("system:time_start", False) # Descending = Newest first
+    )
+    size = col.size().getInfo()
+    if size == 0:
+        raise RuntimeError(f"No scenes found for {start}..{end} (cloud<{cloud_pct})")
+    
+    # Pick the latest image
+    img = col.first().clip(aoi).select(["B2","B3","B4","B8","B11","B12"])
+    
+    # Get metadata for logging
+    props = col.first().toDictionary().getInfo()
+    print(f"[INFO] Latest scene found: {props.get('system:index')} (Cloud: {props.get('CLOUDY_PIXEL_PERCENTAGE')}%)")
+    
+    return img
+
 def export_to_drive(img, region, name, folder, scale, crs):
     desc = name
     task = ee.batch.Export.image.toDrive(
@@ -96,6 +138,7 @@ def parse_args():
     p.add_argument("--scale", type=int, default=10)
     p.add_argument("--crs", default="EPSG:4326")
     p.add_argument("--cloud-pct", type=int, default=60)
+    p.add_argument("--method", choices=["composite", "best", "latest"], default="composite", help="Method: 'composite' (median), 'best' (least cloudy), 'latest' (newest clear)")
     return p.parse_args()
 
 def main():
@@ -106,10 +149,23 @@ def main():
     before_start, before_end = args.before
     after_start, after_end = args.after
 
-    print("[INFO] Building BEFORE composite:", before_start, before_end)
-    before_img = sentinel_composite(aoi, before_start, before_end, args.cloud_pct)
-    print("[INFO] Building AFTER composite:", after_start, after_end)
-    after_img = sentinel_composite(aoi, after_start, after_end, args.cloud_pct)
+    print(f"[INFO] Processing method: {args.method.upper()}")
+
+    if args.method == "composite":
+        print("[INFO] Building BEFORE composite:", before_start, before_end)
+        before_img = sentinel_composite(aoi, before_start, before_end, args.cloud_pct)
+        print("[INFO] Building AFTER composite:", after_start, after_end)
+        after_img = sentinel_composite(aoi, after_start, after_end, args.cloud_pct)
+    elif args.method == "best":
+        print("[INFO] Finding BEST SCENE for BEFORE:", before_start, before_end)
+        before_img = get_best_scene(aoi, before_start, before_end, args.cloud_pct)
+        print("[INFO] Finding BEST SCENE for AFTER:", after_start, after_end)
+        after_img = get_best_scene(aoi, after_start, after_end, args.cloud_pct)
+    else: # latest
+        print("[INFO] Finding LATEST SCENE for BEFORE:", before_start, before_end)
+        before_img = get_latest_scene(aoi, before_start, before_end, args.cloud_pct)
+        print("[INFO] Finding LATEST SCENE for AFTER:", after_start, after_end)
+        after_img = get_latest_scene(aoi, after_start, after_end, args.cloud_pct)
 
     fname_before = f"{args.name}_before_{before_start}_{before_end}"
     fname_after  = f"{args.name}_after_{after_start}_{after_end}"
