@@ -33,7 +33,7 @@ function App() {
 
   // Fetch available years
   useEffect(() => {
-    fetch('/visualization_results/index.json')
+    fetch('./public/visualization_results/index.json')
       .then(res => res.json())
       .then(data => {
         setYears(data.years);
@@ -46,11 +46,11 @@ function App() {
   }, []);
 
   const beforeImage = selectedBeforeYear 
-    ? `/visualization_results/before_${selectedBeforeYear}.png` 
+    ? `./public/visualization_results/before_${selectedBeforeYear}.png` 
     : null;
     
   const afterImage = selectedAfterYear 
-    ? `/visualization_results/after_${selectedAfterYear}.png` 
+    ? `./public/visualization_results/after_${selectedAfterYear}.png` 
     : null;
 
   return (
@@ -95,7 +95,7 @@ function App() {
             <VisualizationViewer 
               beforeImage={beforeImage}
               afterImage={afterImage}
-              maskImage={selectedBeforeYear ? `/visualization_results/mask_${selectedBeforeYear}.png` : null}
+              maskImage={selectedBeforeYear ? `./public/visualization_results/mask_${selectedBeforeYear}.png` : null}
               beforeYear={selectedBeforeYear}
               afterYear={selectedAfterYear}
             />
