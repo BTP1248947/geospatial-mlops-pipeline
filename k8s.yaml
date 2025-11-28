@@ -23,25 +23,6 @@ spec:
           env:
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/etc/secrets/key.json"
-          volumeMounts:
-            - name: google-creds-vol
-              mountPath: "/etc/secrets"
-              readOnly: true
-          # -------------------------------------------------------
-
-          resources:
-            requests:
-              memory: "128Mi"
-              cpu: "50m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
-      
-      # --- NEW: Volume Definition ---
-      volumes:
-        - name: google-creds-vol
-          secret:
-            secretName: google-credentials
       # ------------------------------
 
 ---
