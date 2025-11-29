@@ -24,4 +24,12 @@ Thumbs.db
 mlflow.db
 
 
-
+# data and artifacts
+data/raw/
+data/processed/
+data/live_stream/
+*.pth
+model_inference.pth
+trained.pth
+mlflow.db
+mlruns/
