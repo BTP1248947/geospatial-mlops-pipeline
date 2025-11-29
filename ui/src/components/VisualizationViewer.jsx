@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { AlertCircle, Maximize2 } from 'lucide-react';
 
-const VisualizationViewer = ({ beforeImage, afterImage, maskImage, beforeYear, afterYear }) => {
-  const [imageError, setImageError] = useState({ before: false, after: false, mask: false });
+const VisualizationViewer = ({ beforeImage, afterImage, maskImage, heatImage, beforeYear, afterYear }) => {
+  const [imageError, setImageError] = useState({ before: false, after: false, mask: false, heat: false });
 
   const handleImageError = (type) => {
     setImageError(prev => ({ ...prev, [type]: true }));
@@ -10,8 +10,8 @@ const VisualizationViewer = ({ beforeImage, afterImage, maskImage, beforeYear, a
 
   // Reset error state when images change
   React.useEffect(() => {
-    setImageError({ before: false, after: false, mask: false });
-  }, [beforeImage, afterImage, maskImage]);
+    setImageError({ before: false, after: false, mask: false, heat: false });
+  }, [beforeImage, afterImage, maskImage, heatImage]);
 
   if (!beforeYear || !afterYear) {
     return (
@@ -30,7 +30,7 @@ const VisualizationViewer = ({ beforeImage, afterImage, maskImage, beforeYear, a
   }
 
   return (
-    <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-8 xl:gap-12">
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
       {/* Before Image Card */}
       <div className="group relative glass-card rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2 animate-slide-up delay-100">
         <div className="absolute top-4 left-4 z-10">
@@ -38,7 +38,7 @@ const VisualizationViewer = ({ beforeImage, afterImage, maskImage, beforeYear, a
             Before: {beforeYear}
           </span>
         </div>
-        
+
         <div className="aspect-square w-full relative bg-gray-100 dark:bg-gray-900/50 flex items-center justify-center overflow-hidden">
           {imageError.before ? (
             <div className="text-center p-6 animate-fade-in">
@@ -101,6 +101,31 @@ const VisualizationViewer = ({ beforeImage, afterImage, maskImage, beforeYear, a
               alt="Deforestation Mask"
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               onError={() => handleImageError('mask')}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Heatmap Image Card */}
+      <div className="group relative glass-card rounded-3xl overflow-hidden transition-all duration-500 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-2 animate-slide-up delay-400">
+        <div className="absolute top-4 left-4 z-10">
+          <span className="px-4 py-2 bg-black/60 backdrop-blur-md text-white text-sm font-bold rounded-full border border-white/10 shadow-lg">
+            Heatmap
+          </span>
+        </div>
+
+        <div className="aspect-square w-full relative bg-gray-100 dark:bg-gray-900/50 flex items-center justify-center overflow-hidden">
+          {imageError.heat ? (
+            <div className="text-center p-6 animate-fade-in">
+              <AlertCircle className="w-12 h-12 text-red-500/80 mx-auto mb-3" />
+              <p className="text-gray-500 dark:text-gray-400 font-medium">Heatmap not found</p>
+            </div>
+          ) : (
+            <img
+              src={heatImage}
+              alt="Deforestation Heatmap"
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              onError={() => handleImageError('heat')}
             />
           )}
         </div>

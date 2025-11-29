@@ -428,10 +428,25 @@ def main():
                     arr = ds.read(1)
                     tr = ds.transform
                     px_area = abs(tr.a * tr.e) if tr else None
+                    total_pixels = arr.size
                     changed = int((arr > args.threshold).sum())
                     area_ha = changed * px_area / 10000.0 if px_area else None
-                    metrics = {"changed_pixels": changed, "pixel_area_m2": px_area, "area_ha": area_ha}
-            except Exception:
+                    deforestation_percent = (changed / total_pixels) * 100.0 if total_pixels > 0 else 0.0
+                    metrics = {
+                        "changed_pixels": int(changed),
+                        "total_pixels": int(total_pixels),
+                        "pixel_area_m2": px_area,
+                        "area_ha": area_ha,
+                        "deforestation_percent": round(deforestation_percent, 2)
+                    }
+                    
+                    # Save metrics to JSON for UI
+                    metrics_json_path = str(visuals_dir / f"{name}_metrics.json")
+                    with open(metrics_json_path, "w") as f:
+                        json.dump(metrics, f, indent=2)
+                        
+            except Exception as e:
+                print(f"[WARN] Failed to compute metrics for {name}: {e}")
                 metrics = {}
             per_aoi_info.append({
                 "name": name,

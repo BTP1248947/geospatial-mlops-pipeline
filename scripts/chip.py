@@ -41,9 +41,24 @@ def chip_pair(before_path, after_path, mask_path, out_dir, size, stride):
                 if msrc:
                     m_data = msrc.read(1, window=win)
                 else:
-                    # Create proxy mask if none provided (e.g. diff > threshold)
-                    # Simple NDVI-like diff or just zeros
-                    m_data = np.zeros((size, size), dtype='uint8')
+                    # Create proxy mask using NDVI difference
+                    # Assuming bands: 0=Blue, 1=Green, 2=Red, 3=NIR
+                    def calc_ndvi(arr):
+                        # arr is (C, H, W)
+                        nir = arr[3].astype(float)
+                        red = arr[2].astype(float)
+                        denom = nir + red
+                        denom[denom == 0] = 1 # avoid div by zero
+                        return (nir - red) / denom
+
+                    ndvi_b = calc_ndvi(b_data)
+                    ndvi_a = calc_ndvi(a_data)
+                    
+                    # Deforestation = Drop in NDVI
+                    ndvi_diff = ndvi_b - ndvi_a
+                    
+                    # Threshold: 0.2 drop is significant
+                    m_data = (ndvi_diff > 0.2).astype('uint8') * 255
 
                 # Write chips
                 tile_id = f"{basename}_{yi}_{xi}"

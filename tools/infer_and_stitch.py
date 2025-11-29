@@ -182,6 +182,7 @@ def main():
                 ta = torch.from_numpy(np.stack(batch_tiles_a, axis=0)).to(device)
                 with torch.no_grad():
                     out = model(tb, ta)  # B x 1 x H x W
+                    out = torch.sigmoid(out) # Apply sigmoid to get probabilities
                     out_np = out.squeeze(1).cpu().numpy()  # B x H x W
                 # append cropped tiles
                 for widx, tile_out in enumerate(out_np):
@@ -197,6 +198,7 @@ def main():
             ta = torch.from_numpy(np.stack(batch_tiles_a, axis=0)).to(device)
             with torch.no_grad():
                 out = model(tb, ta)
+                out = torch.sigmoid(out)
                 out_np = out.squeeze(1).cpu().numpy()
             for tile_out in out_np:
                 outputs.append(tile_out)

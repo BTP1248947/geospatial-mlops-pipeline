@@ -72,10 +72,24 @@ def main():
         if os.path.exists(after_src):
             shutil.copy(after_src, os.path.join(region_dir, f"after_{after_year}.png"))
             
-        # Copy Mask -> mask_{before_year}.png (associate mask with the 'before' timestamp for UI selection)
+        # Copy Mask -> mask_{before_year}.png
         mask_src = os.path.join(args.visuals_dir, f"{aoi_name}_mask.png")
         if os.path.exists(mask_src):
             shutil.copy(mask_src, os.path.join(region_dir, f"mask_{before_year}.png"))
+
+        # Copy Heatmap -> heat_{before_year}.png
+        heat_src = os.path.join(args.visuals_dir, f"{aoi_name}_heat.png")
+        if os.path.exists(heat_src):
+            shutil.copy(heat_src, os.path.join(region_dir, f"heat_{before_year}.png"))
+            
+        # Read Metrics
+        metrics_src = os.path.join(args.visuals_dir, f"{aoi_name}_metrics.json")
+        if os.path.exists(metrics_src):
+            with open(metrics_src) as f:
+                metrics = json.load(f)
+            if "metrics" not in index_data:
+                index_data["metrics"] = {}
+            index_data["metrics"][aoi_name] = metrics
             
         # Update Index
         index_data["regions"].append(aoi_name)

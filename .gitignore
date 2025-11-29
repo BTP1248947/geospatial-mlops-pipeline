@@ -206,3 +206,11 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 EO_Exports/
+build_kaggle/
+build_kernel/
+runs/kaggle_result/
+*.zip
+*.tif
+debug_logs/
+debug_logs_v3/
+debug_logs_v4/
