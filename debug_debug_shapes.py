@@ -65,19 +65,19 @@ print("bottleneck output", tuple(bt.shape))
 x = bt
 print("\\n=== Decoder steps ===")
 for i, (up, skip) in enumerate([(model.up4, c3), (model.up3, c2), (model.up2, c1), (model.up1, c1)]):
-    print(f\"Before up{i+1}: x={tuple(x.shape)} skip={tuple(skip.shape)}\")
+    print(f"Before up{i+1}: x={tuple(x.shape)} skip={tuple(skip.shape)}")
     # up module will attempt to upsample and concat, so call its up only to inspect sizes
     x_up = up.up(x)
-    print(f\"After convtranspose: x_up={tuple(x_up.shape)} (will concat with skip)\")
+    print(f"After convtranspose: x_up={tuple(x_up.shape)} (will concat with skip)")
     # if spatial mismatch, report it
     if x_up.shape[2:] != skip.shape[2:]:
-        print(f\"SPATIAL MISMATCH at up{i+1}: x_up.shape={x_up.shape}, skip.shape={skip.shape}\")
+        print(f"SPATIAL MISMATCH at up{i+1}: x_up.shape={x_up.shape}, skip.shape={skip.shape}")
     # perform actual forward for progress
     try:
         x = up(x, skip)
     except Exception as e:
-        print(f\"ERROR during up{i+1} forward: {e}\") 
+        print(f"ERROR during up{i+1} forward: {e}") 
         raise
-    print(f\"After up{i+1} conv output: x={tuple(x.shape)}\\n\")
+    print(f"After up{i+1} conv output: x={tuple(x.shape)}\n")
 
 print("PASS: decoder completed, final shape:", tuple(x.shape))
