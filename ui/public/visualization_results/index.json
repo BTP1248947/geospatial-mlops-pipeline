@@ -1,0 +1,16 @@
+{
+  "regions": [
+    "amazon_rainforest",
+    "brazil_novo_progresso"
+  ],
+  "years": {
+    "amazon_rainforest": [
+      "2023",
+      "2024"
+    ],
+    "brazil_novo_progresso": [
+      "2023",
+      "2024"
+    ]
+  }
+}

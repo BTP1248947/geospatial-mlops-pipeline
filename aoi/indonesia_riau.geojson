@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "region": "riau"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              101.35,
+              0.4
+            ],
+            [
+              101.55,
+              0.4
+            ],
+            [
+              101.55,
+              0.6
+            ],
+            [
+              101.35,
+              0.6
+            ],
+            [
+              101.35,
+              0.4
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

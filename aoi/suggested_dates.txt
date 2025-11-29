@@ -1,0 +1,30 @@
+
+Suggested Date Ranges for New AOIs
+==================================
+
+These dates are selected to maximize the chance of low cloud cover (dry season) and visibility of deforestation.
+
+1. brazil_novo_progresso.geojson (Amazon)
+   - Dry Season: August - September
+   - Suggested "Before": 2023-08-01 to 2023-08-30
+   - Suggested "After":  2024-08-01 to 2024-08-30
+
+2. brazil_altamira.geojson (Amazon)
+   - Dry Season: August - September
+   - Suggested "Before": 2023-08-01 to 2023-08-30
+   - Suggested "After":  2024-08-01 to 2024-08-30
+
+3. brazil_porto_velho.geojson (Amazon)
+   - Dry Season: June - September
+   - Suggested "Before": 2023-07-01 to 2023-07-30
+   - Suggested "After":  2024-07-01 to 2024-07-30
+
+4. indonesia_riau.geojson (Sumatra)
+   - Dry Season: June - September
+   - Suggested "Before": 2023-06-01 to 2023-06-30
+   - Suggested "After":  2024-06-01 to 2024-06-30
+
+5. indonesia_kalimantan.geojson (Borneo)
+   - Dry Season: August - October
+   - Suggested "Before": 2023-09-01 to 2023-09-30
+   - Suggested "After":  2024-09-01 to 2024-09-30

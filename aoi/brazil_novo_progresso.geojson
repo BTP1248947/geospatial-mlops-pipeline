@@ -1,0 +1,38 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "region": "novo_progresso"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -55.5,
+              -7.25
+            ],
+            [
+              -55.3,
+              -7.25
+            ],
+            [
+              -55.3,
+              -7.05
+            ],
+            [
+              -55.5,
+              -7.05
+            ],
+            [
+              -55.5,
+              -7.25
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
