@@ -54,134 +54,134 @@
   "metrics": {
     "brazil_rondonia": {
       "2023": {
-        "deforestation_percent": 6.439561704992382,
+        "deforestation_percent": 26.566153934734082,
         "confidence": 1.0,
-        "changed_pixels": 116316
+        "changed_pixels": 479857
       },
       "2022": {
-        "deforestation_percent": 0.2239419090812458,
+        "deforestation_percent": 5.905699695283988,
         "confidence": 1.0,
-        "changed_pixels": 4045
+        "changed_pixels": 106673
       },
       "2021": {
-        "deforestation_percent": 0.43515040924069026,
+        "deforestation_percent": 3.412166052510364,
         "confidence": 1.0,
-        "changed_pixels": 7860
+        "changed_pixels": 61633
       },
       "2020": {
-        "deforestation_percent": 0.35708907628529923,
+        "deforestation_percent": 2.7327002799135456,
         "confidence": 1.0,
-        "changed_pixels": 6450
+        "changed_pixels": 49360
       }
     },
     "brazil_novo_progresso": {
       "2020": {
-        "deforestation_percent": 2.290785541554447,
+        "deforestation_percent": 6.9132195878374825,
         "confidence": 1.0,
-        "changed_pixels": 40980
+        "changed_pixels": 123671
       },
       "2022": {
-        "deforestation_percent": 1.4631847620836422,
+        "deforestation_percent": 4.780519490683133,
         "confidence": 1.0,
-        "changed_pixels": 26175
+        "changed_pixels": 85519
       },
       "2021": {
-        "deforestation_percent": 2.3289653005803546,
+        "deforestation_percent": 6.535726304232867,
         "confidence": 1.0,
-        "changed_pixels": 41663
+        "changed_pixels": 116918
       },
       "2023": {
-        "deforestation_percent": 1.6874000087204137,
+        "deforestation_percent": 4.680290635729323,
         "confidence": 1.0,
-        "changed_pixels": 30186
+        "changed_pixels": 83726
       }
     },
     "brazil_mato_grosso_2": {
       "2020": {
-        "deforestation_percent": 10.601362857308454,
+        "deforestation_percent": 11.614646438162213,
         "confidence": 1.0,
-        "changed_pixels": 192058
+        "changed_pixels": 210415
       },
       "2023": {
-        "deforestation_percent": 8.83384346184524,
+        "deforestation_percent": 6.075451180839408,
         "confidence": 1.0,
-        "changed_pixels": 160037
+        "changed_pixels": 110065
       },
       "2021": {
-        "deforestation_percent": 13.291308679728534,
+        "deforestation_percent": 11.311218871351016,
         "confidence": 1.0,
-        "changed_pixels": 240790
+        "changed_pixels": 204918
       },
       "2022": {
-        "deforestation_percent": 9.471168309289675,
+        "deforestation_percent": 6.066674578488493,
         "confidence": 1.0,
-        "changed_pixels": 171583
+        "changed_pixels": 109906
       }
     },
     "brazil_novo_progresso_2": {
       "2021": {
-        "deforestation_percent": 1.3473597830182247,
+        "deforestation_percent": 5.606946368339086,
         "confidence": 1.0,
-        "changed_pixels": 24103
+        "changed_pixels": 100303
       },
       "2022": {
-        "deforestation_percent": 0.9607547853268981,
+        "deforestation_percent": 3.9562727163976192,
         "confidence": 1.0,
-        "changed_pixels": 17187
+        "changed_pixels": 70774
       },
       "2023": {
-        "deforestation_percent": 1.2225348900389401,
+        "deforestation_percent": 4.881195546328314,
         "confidence": 1.0,
-        "changed_pixels": 21870
+        "changed_pixels": 87320
       },
       "2020": {
-        "deforestation_percent": 1.303925415868693,
+        "deforestation_percent": 5.7982364640735735,
         "confidence": 1.0,
-        "changed_pixels": 23326
+        "changed_pixels": 103725
       }
     },
     "brazil_mato_grosso": {
       "2020": {
-        "deforestation_percent": 10.533026796236548,
+        "deforestation_percent": 12.38246114697497,
         "confidence": 1.0,
-        "changed_pixels": 190820
+        "changed_pixels": 224325
       },
       "2021": {
-        "deforestation_percent": 13.659208394626955,
+        "deforestation_percent": 12.165033243451358,
         "confidence": 1.0,
-        "changed_pixels": 247455
+        "changed_pixels": 220386
       },
       "2022": {
-        "deforestation_percent": 8.93347721809305,
+        "deforestation_percent": 5.12410060525437,
         "confidence": 1.0,
-        "changed_pixels": 161842
+        "changed_pixels": 92830
       },
       "2023": {
-        "deforestation_percent": 7.372621968553268,
+        "deforestation_percent": 5.400701576200504,
         "confidence": 1.0,
-        "changed_pixels": 133565
+        "changed_pixels": 97841
       }
     },
     "brazil_rondonia_2": {
       "2020": {
-        "deforestation_percent": 0.3338921269886263,
+        "deforestation_percent": 2.3214665343868477,
         "confidence": 1.0,
-        "changed_pixels": 6031
+        "changed_pixels": 41932
       },
       "2021": {
-        "deforestation_percent": 0.33045964284448853,
+        "deforestation_percent": 3.0067453849697054,
         "confidence": 1.0,
-        "changed_pixels": 5969
+        "changed_pixels": 54310
       },
       "2022": {
-        "deforestation_percent": 0.2541699146086525,
+        "deforestation_percent": 5.267589820359282,
         "confidence": 1.0,
-        "changed_pixels": 4591
+        "changed_pixels": 95147
       },
       "2023": {
-        "deforestation_percent": 1.4282455798462248,
+        "deforestation_percent": 10.475000442901178,
         "confidence": 1.0,
-        "changed_pixels": 25798
+        "changed_pixels": 189207
       }
     }
   }

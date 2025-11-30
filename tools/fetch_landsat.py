@@ -90,7 +90,7 @@ def apply_scale_factors(image):
     thermal_bands = image.select('ST_B.*').multiply(0.00341802).add(149.0)
     return image.addBands(optical_bands, None, True).addBands(thermal_bands, None, True)
 
-def generate_and_download_composite(start_date, end_date, point, region, output_path):
+def generate_and_download_composite(start_date, end_date, point, region, output_path, bands=None):
     print(f"Generating composite for {os.path.basename(output_path)}...")
     try:
         # Select collection based on year
@@ -111,8 +111,21 @@ def generate_and_download_composite(start_date, end_date, point, region, output_
             return
 
         composite = collection.median()
+        
+        # Determine visualization parameters
+        if bands:
+            # Single band (e.g., NIR) - grayscale
+            vis_params = {'bands': bands, 'min': 0.0, 'max': 0.5, 'palette': ['black', 'white']}
+        else:
+            # RGB
+            vis_params = {'region': region, 'scale': 30, 'format': 'PNG', **VIS_PARAMS}
+            
         # format: 'png' is important for visual download
-        url = composite.getThumbURL({'region': region, 'scale': 30, 'format': 'PNG', **VIS_PARAMS})
+        # Note: getThumbURL params must include region/scale/format
+        final_params = {'region': region, 'scale': 30, 'format': 'PNG'}
+        final_params.update(vis_params)
+        
+        url = composite.getThumbURL(final_params)
 
         print(f"Downloading image to {output_path}...")
         response = requests.get(url)
@@ -141,9 +154,21 @@ def main():
             os.path.join(args.out_dir, f"{aoi['name']}_before.png")
         )
         generate_and_download_composite(
+            aoi['before_dates'][0], aoi['before_dates'][1], 
+            point, region, 
+            os.path.join(args.out_dir, f"{aoi['name']}_nir_before.png"),
+            bands=['SR_B5']
+        )
+        generate_and_download_composite(
             aoi['after_dates'][0], aoi['after_dates'][1], 
             point, region, 
             os.path.join(args.out_dir, f"{aoi['name']}_after.png")
+        )
+        generate_and_download_composite(
+            aoi['after_dates'][0], aoi['after_dates'][1], 
+            point, region, 
+            os.path.join(args.out_dir, f"{aoi['name']}_nir_after.png"),
+            bands=['SR_B5']
         )
 
 if __name__ == "__main__":

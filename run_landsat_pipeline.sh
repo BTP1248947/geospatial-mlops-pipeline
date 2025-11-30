@@ -19,7 +19,7 @@ echo "[3/4] Running Inference (Simple Difference)..."
 python3 tools/infer_simple.py \
     --in-dir data/raw_landsat \
     --out-dir outputs/site/visuals \
-    --threshold 30
+    --threshold 0.15
 
 # 4. Populate UI
 echo "[4/4] Populating UI..."

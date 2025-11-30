@@ -71,6 +71,7 @@ def main():
     # Clean output dir? Maybe not, let's append.
     
     before_files = sorted(glob.glob(os.path.join(args.in_dir, "*_before.png")))
+    before_files = [f for f in before_files if "_nir_before.png" not in f]
     patch_count = 0
     
     print(f"Found {len(before_files)} before images in {args.in_dir}")
