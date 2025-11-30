@@ -15,11 +15,12 @@ import argparse
 import numpy as np
 from PIL import Image
 from tqdm import tqdm
+import matplotlib.cm as cm
 
 def compute_difference(before_path, after_path, threshold=30):
     """
     Computes absolute difference between two images.
-    Returns heatmap (difference magnitude) and binary mask.
+    Returns heatmap (colored RGB) and binary mask.
     """
     b_img = Image.open(before_path).convert('RGB')
     a_img = Image.open(after_path).convert('RGB')
@@ -31,25 +32,31 @@ def compute_difference(before_path, after_path, threshold=30):
     b_arr = np.array(b_img, dtype=np.int16)
     a_arr = np.array(a_img, dtype=np.int16)
     
-    # Simple absolute difference per channel, then mean or max
-    # Let's take the mean difference across RGB channels
+    # Simple absolute difference per channel, then mean
     diff = np.abs(b_arr - a_arr)
     diff_mag = np.mean(diff, axis=2) # (H, W)
     
-    # Normalize heatmap to 0-255
-    heatmap = np.clip(diff_mag * 3, 0, 255).astype(np.uint8) # Scale up visibility
+    # Normalize heatmap to 0-1 for colormap
+    # Clip at a reasonable upper bound to make changes visible
+    # e.g., if diff is 50, that's significant. 
+    max_diff = 100.0 
+    norm_diff = np.clip(diff_mag / max_diff, 0, 1.0)
+    
+    # Apply colormap (Jet is classic for heatmaps)
+    # cm.jet returns RGBA (0-1), we need RGB (0-255)
+    heatmap_rgba = cm.jet(norm_diff)
+    heatmap_rgb = (heatmap_rgba[:, :, :3] * 255).astype(np.uint8)
     
     # Binary mask
     mask = (diff_mag > threshold).astype(np.uint8) * 255
     
-    return heatmap, mask
+    return heatmap_rgb, mask
 
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--in-dir", required=True)
     parser.add_argument("--out-dir", required=True)
     parser.add_argument("--threshold", type=int, default=30, help="Difference threshold (0-255)")
-    # --model argument is kept for compatibility but ignored
     parser.add_argument("--model", help="Ignored", default=None) 
     args = parser.parse_args()
 
@@ -75,7 +82,9 @@ def main():
         heatmap, mask = compute_difference(b_file, a_file, threshold=args.threshold)
         
         # Save results
-        Image.fromarray(heatmap, mode='L').save(os.path.join(args.out_dir, f"{base}_heat.png"))
+        # Heatmap is now RGB
+        Image.fromarray(heatmap, mode='RGB').save(os.path.join(args.out_dir, f"{base}_heat.png"))
+        # Mask is L
         Image.fromarray(mask, mode='L').save(os.path.join(args.out_dir, f"{base}_mask.png"))
         
         # Calculate simple metrics

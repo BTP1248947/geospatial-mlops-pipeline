@@ -1,8 +1,11 @@
 {
   "regions": [
     "brazil_mato_grosso",
+    "brazil_mato_grosso_2",
     "brazil_novo_progresso",
-    "brazil_rondonia"
+    "brazil_novo_progresso_2",
+    "brazil_rondonia",
+    "brazil_rondonia_2"
   ],
   "years": {
     "brazil_rondonia": [
@@ -19,7 +22,28 @@
       2023,
       2024
     ],
+    "brazil_mato_grosso_2": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "brazil_novo_progresso_2": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
     "brazil_mato_grosso": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "brazil_rondonia_2": [
       2020,
       2021,
       2022,
@@ -72,6 +96,50 @@
         "changed_pixels": 30186
       }
     },
+    "brazil_mato_grosso_2": {
+      "2020": {
+        "deforestation_percent": 10.601362857308454,
+        "confidence": 1.0,
+        "changed_pixels": 192058
+      },
+      "2023": {
+        "deforestation_percent": 8.83384346184524,
+        "confidence": 1.0,
+        "changed_pixels": 160037
+      },
+      "2021": {
+        "deforestation_percent": 13.291308679728534,
+        "confidence": 1.0,
+        "changed_pixels": 240790
+      },
+      "2022": {
+        "deforestation_percent": 9.471168309289675,
+        "confidence": 1.0,
+        "changed_pixels": 171583
+      }
+    },
+    "brazil_novo_progresso_2": {
+      "2021": {
+        "deforestation_percent": 1.3473597830182247,
+        "confidence": 1.0,
+        "changed_pixels": 24103
+      },
+      "2022": {
+        "deforestation_percent": 0.9607547853268981,
+        "confidence": 1.0,
+        "changed_pixels": 17187
+      },
+      "2023": {
+        "deforestation_percent": 1.2225348900389401,
+        "confidence": 1.0,
+        "changed_pixels": 21870
+      },
+      "2020": {
+        "deforestation_percent": 1.303925415868693,
+        "confidence": 1.0,
+        "changed_pixels": 23326
+      }
+    },
     "brazil_mato_grosso": {
       "2020": {
         "deforestation_percent": 10.533026796236548,
@@ -92,6 +160,28 @@
         "deforestation_percent": 7.372621968553268,
         "confidence": 1.0,
         "changed_pixels": 133565
+      }
+    },
+    "brazil_rondonia_2": {
+      "2020": {
+        "deforestation_percent": 0.3338921269886263,
+        "confidence": 1.0,
+        "changed_pixels": 6031
+      },
+      "2021": {
+        "deforestation_percent": 0.33045964284448853,
+        "confidence": 1.0,
+        "changed_pixels": 5969
+      },
+      "2022": {
+        "deforestation_percent": 0.2541699146086525,
+        "confidence": 1.0,
+        "changed_pixels": 4591
+      },
+      "2023": {
+        "deforestation_percent": 1.4282455798462248,
+        "confidence": 1.0,
+        "changed_pixels": 25798
       }
     }
   }

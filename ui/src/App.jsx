@@ -5,14 +5,19 @@ import VisualizationViewer from './components/VisualizationViewer';
 
 function App() {
   const [theme, setTheme] = useState('light');
-  const [regions, setRegions] = useState([]);
+  const [areas, setAreas] = useState({});
   const [yearsData, setYearsData] = useState({});
   const [metrics, setMetrics] = useState({});
   const [years, setYears] = useState([]);
+
+  const [selectedArea, setSelectedArea] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState('1');
   const [selectedBeforeYear, setSelectedBeforeYear] = useState(null);
   const [selectedAfterYear, setSelectedAfterYear] = useState(null);
-  const [selectedROI, setSelectedROI] = useState('');
   const [loading, setLoading] = useState(true);
+
+  // Derived ROI
+  const selectedROI = selectedLocation === '1' ? selectedArea : `${selectedArea}_${selectedLocation}`;
 
   // Initialize theme
   useEffect(() => {
@@ -34,19 +39,53 @@ function App() {
     setTheme(prev => prev === 'light' ? 'dark' : 'light');
   };
 
+  // Helper to format labels
+  const formatLabel = (str) => {
+    return str.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  };
+
   // Fetch available regions and years
   useEffect(() => {
     fetch('/visualization_results/index.json')
       .then(res => res.json())
       .then(data => {
-        // data structure: { regions: ["name1", ...], years: { "name1": [2023, 2024], ... }, metrics: { "name1": {...} } }
-        setRegions(data.regions || []);
+        const regionList = data.regions || [];
+        const groupedAreas = {};
+
+        regionList.forEach(region => {
+          // Check for suffix _2, _3 etc.
+          const match = region.match(/(.*)_(\d+)$/);
+          if (match) {
+            const base = match[1];
+            const loc = match[2];
+            if (!groupedAreas[base]) {
+              groupedAreas[base] = { label: formatLabel(base), locations: ['1'] };
+            }
+            if (!groupedAreas[base].locations.includes(loc)) {
+              groupedAreas[base].locations.push(loc);
+              groupedAreas[base].locations.sort();
+            }
+          } else {
+            // Base region (Location 1)
+            if (!groupedAreas[region]) {
+              groupedAreas[region] = { label: formatLabel(region), locations: ['1'] };
+            }
+          }
+        });
+
+        setAreas(groupedAreas);
         setYearsData(data.years || {});
         setMetrics(data.metrics || {});
 
-        if (data.regions && data.regions.length > 0) {
-          const initialROI = data.regions[0];
-          setSelectedROI(initialROI);
+        // Initial selection
+        const areaKeys = Object.keys(groupedAreas).sort();
+        if (areaKeys.length > 0) {
+          const initialArea = areaKeys[0];
+          setSelectedArea(initialArea);
+          setSelectedLocation('1');
+
+          // Set years for initial ROI
+          const initialROI = initialArea; // Loc 1
           const roiYears = data.years[initialROI] || [];
           setYears(roiYears);
           if (roiYears.length >= 1) setSelectedBeforeYear(roiYears[0]);
@@ -110,13 +149,15 @@ function App() {
           <div className="w-full flex flex-col gap-12 animate-slide-up delay-200">
             <YearSelector
               years={years}
-              regions={regions}
+              areas={areas}
+              selectedArea={selectedArea}
+              onAreaChange={setSelectedArea}
+              selectedLocation={selectedLocation}
+              onLocationChange={setSelectedLocation}
               selectedBeforeYear={selectedBeforeYear}
               selectedAfterYear={selectedAfterYear}
               onBeforeChange={setSelectedBeforeYear}
               onAfterChange={setSelectedAfterYear}
-              selectedROI={selectedROI}
-              onROIChange={setSelectedROI}
             />
 
             <VisualizationViewer

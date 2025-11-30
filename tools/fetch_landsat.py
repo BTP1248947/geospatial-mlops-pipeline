@@ -40,6 +40,25 @@ BASE_AOIS = [
         "notes": "Fishbone deforestation patterns.",
         "lat": -10.8, "lon": -62.8,
         "size_m": 40000
+    },
+    # New coordinates for the same areas
+    {
+        "name": "brazil_mato_grosso_2",
+        "notes": "Secondary location in Mato Grosso.",
+        "lat": -11.6, "lon": -54.9,
+        "size_m": 40000
+    },
+    {
+        "name": "brazil_novo_progresso_2",
+        "notes": "Secondary location in Novo Progresso.",
+        "lat": -7.2, "lon": -55.5,
+        "size_m": 40000
+    },
+    {
+        "name": "brazil_rondonia_2",
+        "notes": "Secondary location in Rondonia.",
+        "lat": -10.9, "lon": -62.9,
+        "size_m": 40000
     }
 ]
 
