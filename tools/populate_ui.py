@@ -14,89 +14,75 @@ def main():
 
     os.makedirs(args.ui_public_dir, exist_ok=True)
 
-    # 1. Map AOI names to Years using data/raw files
-    # Structure: { "aoi_name": { "before": year, "after": year } }
-    aoi_years = {}
-    raw_files = glob.glob(os.path.join(args.raw_dir, "*.tif"))
-    for f in raw_files:
-        # Expected: name_before_YYYY-MM-DD_...tif
-        basename = os.path.basename(f)
-        parts = basename.split("_")
-        if "before" in parts:
-            idx = parts.index("before")
-            date_str = parts[idx+1] # YYYY-MM-DD
-            year = int(date_str.split("-")[0])
-            name = "_".join(parts[:idx])
-            if name not in aoi_years: aoi_years[name] = {}
-            aoi_years[name]["before"] = year
-        elif "after" in parts:
-            idx = parts.index("after")
-            date_str = parts[idx+1]
-            year = int(date_str.split("-")[0])
-            name = "_".join(parts[:idx])
-            if name not in aoi_years: aoi_years[name] = {}
-            aoi_years[name]["after"] = year
-
-    # 2. Copy visuals to ui/public/visualization_results/{aoi}/...
-    # index.json: { "regions": [list], "years": { "region": [year_before, year_after] } }
+    # 1. Iterate raw files to find available data pairs
+    raw_files = glob.glob(os.path.join(args.raw_dir, "*_before.png"))
+    print(f"DEBUG: Found {len(raw_files)} raw files in {args.raw_dir}")
     
     index_data = {"regions": [], "years": {}}
     
-    visuals = glob.glob(os.path.join(args.visuals_dir, "*_before.png"))
-    for vis_path in visuals:
-        # vis_path: .../brazil_novo_progresso_before.png
-        filename = os.path.basename(vis_path)
-        aoi_name = filename.replace("_before.png", "")
+    for raw_path in raw_files:
+        # raw_path: .../brazil_mato_grosso_2020_2021_before.png
+        filename = os.path.basename(raw_path)
         
-        if aoi_name not in aoi_years:
-            print(f"[WARN] Could not find raw data years for {aoi_name}, skipping.")
+        # Parse base name and years
+        import re
+        match = re.search(r"(.*)_(\d{4})_(\d{4})_before\.png", filename)
+        if match:
+            aoi_name = match.group(1)
+            before_year = int(match.group(2))
+            after_year = int(match.group(3))
+            base_prefix = filename.replace("_before.png", "")
+        else:
+            # Legacy support or skip
+            print(f"[WARN] Skipping non-standard file: {filename}")
             continue
-            
-        years = aoi_years[aoi_name]
-        before_year = years.get("before")
-        after_year = years.get("after")
+
+        # Check if inference results exist
+        heat_src = os.path.join(args.visuals_dir, f"{base_prefix}_heat.png")
+        mask_src = os.path.join(args.visuals_dir, f"{base_prefix}_mask.png")
         
-        if not before_year or not after_year:
-            print(f"[WARN] Missing before/after year for {aoi_name}")
+        if not os.path.exists(heat_src) or not os.path.exists(mask_src):
+            print(f"[WARN] Missing inference results for {base_prefix}, skipping.")
             continue
 
         # Create region folder
         region_dir = os.path.join(args.ui_public_dir, aoi_name)
         os.makedirs(region_dir, exist_ok=True)
         
-        # Copy Before -> before_{year}.png
-        shutil.copy(vis_path, os.path.join(region_dir, f"before_{before_year}.png"))
+        # Copy Raw Before -> before_{year}.png
+        shutil.copy(raw_path, os.path.join(region_dir, f"before_{before_year}.png"))
         
-        # Copy After -> after_{year}.png
-        after_src = os.path.join(args.visuals_dir, f"{aoi_name}_after.png")
-        if os.path.exists(after_src):
-            shutil.copy(after_src, os.path.join(region_dir, f"after_{after_year}.png"))
+        # Copy Raw After -> after_{year}.png
+        raw_after = os.path.join(args.raw_dir, f"{base_prefix}_after.png")
+        if os.path.exists(raw_after):
+            shutil.copy(raw_after, os.path.join(region_dir, f"after_{after_year}.png"))
             
         # Copy Mask -> mask_{before_year}.png
-        mask_src = os.path.join(args.visuals_dir, f"{aoi_name}_mask.png")
-        if os.path.exists(mask_src):
-            shutil.copy(mask_src, os.path.join(region_dir, f"mask_{before_year}.png"))
+        shutil.copy(mask_src, os.path.join(region_dir, f"mask_{before_year}.png"))
 
         # Copy Heatmap -> heat_{before_year}.png
-        heat_src = os.path.join(args.visuals_dir, f"{aoi_name}_heat.png")
-        if os.path.exists(heat_src):
-            shutil.copy(heat_src, os.path.join(region_dir, f"heat_{before_year}.png"))
+        shutil.copy(heat_src, os.path.join(region_dir, f"heat_{before_year}.png"))
             
         # Read Metrics
-        metrics_src = os.path.join(args.visuals_dir, f"{aoi_name}_metrics.json")
+        metrics_src = os.path.join(args.visuals_dir, f"{base_prefix}_metrics.json")
         if os.path.exists(metrics_src):
             with open(metrics_src) as f:
                 metrics = json.load(f)
             if "metrics" not in index_data:
                 index_data["metrics"] = {}
-            index_data["metrics"][aoi_name] = metrics
+            if aoi_name not in index_data["metrics"]:
+                index_data["metrics"][aoi_name] = {}
+            index_data["metrics"][aoi_name][before_year] = metrics
             
         # Update Index
-        index_data["regions"].append(aoi_name)
-        # We want a list of available years for the selector. 
-        # The selector usually picks one year. 
-        # Let's provide both years so they appear in the dropdown.
-        index_data["years"][aoi_name] = sorted(list(set([before_year, after_year])))
+        if aoi_name not in index_data["regions"]:
+            index_data["regions"].append(aoi_name)
+            
+        if aoi_name not in index_data["years"]:
+            index_data["years"][aoi_name] = []
+        
+        index_data["years"][aoi_name].extend([before_year, after_year])
+        index_data["years"][aoi_name] = sorted(list(set(index_data["years"][aoi_name])))
         
         print(f"[INFO] Processed {aoi_name}: {before_year} -> {after_year}")
 

@@ -140,30 +140,36 @@ function App() {
                   Impact Metrics
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {metrics[selectedROI] ? (
+                  {metrics[selectedROI] && metrics[selectedROI][selectedBeforeYear] ? (
                     <>
                       <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider font-semibold">Deforestation</p>
                         <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                          {metrics[selectedROI].deforestation_percent}%
+                          {metrics[selectedROI][selectedBeforeYear].deforestation_percent
+                            ? metrics[selectedROI][selectedBeforeYear].deforestation_percent.toFixed(2)
+                            : '0.00'}%
                         </p>
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider font-semibold">Area Affected</p>
                         <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                          {metrics[selectedROI].area_ha ? Math.round(metrics[selectedROI].area_ha).toLocaleString() : 'N/A'} <span className="text-lg text-gray-500 font-normal">ha</span>
+                          {metrics[selectedROI][selectedBeforeYear].area_ha
+                            ? Math.round(metrics[selectedROI][selectedBeforeYear].area_ha).toLocaleString()
+                            : 'N/A'} <span className="text-lg text-gray-500 font-normal">ha</span>
                         </p>
                       </div>
                       <div className="bg-gray-50 dark:bg-gray-800/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-700">
                         <p className="text-sm text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wider font-semibold">Changed Pixels</p>
                         <p className="text-3xl font-bold text-gray-900 dark:text-white">
-                          {metrics[selectedROI].changed_pixels.toLocaleString()}
+                          {metrics[selectedROI][selectedBeforeYear].changed_pixels
+                            ? metrics[selectedROI][selectedBeforeYear].changed_pixels.toLocaleString()
+                            : 'N/A'}
                         </p>
                       </div>
                     </>
                   ) : (
                     <div className="col-span-3 text-center text-gray-500 py-4">
-                      No metrics available for this region.
+                      No metrics available for this selection.
                     </div>
                   )}
                 </div>

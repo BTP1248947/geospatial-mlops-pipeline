@@ -1,20 +1,98 @@
 {
   "regions": [
-    "brazil_novo_progresso"
+    "brazil_mato_grosso",
+    "brazil_novo_progresso",
+    "brazil_rondonia"
   ],
   "years": {
+    "brazil_rondonia": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
     "brazil_novo_progresso": [
+      2020,
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "brazil_mato_grosso": [
+      2020,
+      2021,
+      2022,
       2023,
       2024
     ]
   },
   "metrics": {
+    "brazil_rondonia": {
+      "2023": {
+        "deforestation_percent": 6.439561704992382,
+        "confidence": 1.0,
+        "changed_pixels": 116316
+      },
+      "2022": {
+        "deforestation_percent": 0.2239419090812458,
+        "confidence": 1.0,
+        "changed_pixels": 4045
+      },
+      "2021": {
+        "deforestation_percent": 0.43515040924069026,
+        "confidence": 1.0,
+        "changed_pixels": 7860
+      },
+      "2020": {
+        "deforestation_percent": 0.35708907628529923,
+        "confidence": 1.0,
+        "changed_pixels": 6450
+      }
+    },
     "brazil_novo_progresso": {
-      "changed_pixels": 2252183,
-      "total_pixels": 4961756,
-      "pixel_area_m2": 8.069703496827366e-09,
-      "area_ha": 1.8174449030595148e-06,
-      "deforestation_percent": 45.39
+      "2020": {
+        "deforestation_percent": 2.290785541554447,
+        "confidence": 1.0,
+        "changed_pixels": 40980
+      },
+      "2022": {
+        "deforestation_percent": 1.4631847620836422,
+        "confidence": 1.0,
+        "changed_pixels": 26175
+      },
+      "2021": {
+        "deforestation_percent": 2.3289653005803546,
+        "confidence": 1.0,
+        "changed_pixels": 41663
+      },
+      "2023": {
+        "deforestation_percent": 1.6874000087204137,
+        "confidence": 1.0,
+        "changed_pixels": 30186
+      }
+    },
+    "brazil_mato_grosso": {
+      "2020": {
+        "deforestation_percent": 10.533026796236548,
+        "confidence": 1.0,
+        "changed_pixels": 190820
+      },
+      "2021": {
+        "deforestation_percent": 13.659208394626955,
+        "confidence": 1.0,
+        "changed_pixels": 247455
+      },
+      "2022": {
+        "deforestation_percent": 8.93347721809305,
+        "confidence": 1.0,
+        "changed_pixels": 161842
+      },
+      "2023": {
+        "deforestation_percent": 7.372621968553268,
+        "confidence": 1.0,
+        "changed_pixels": 133565
+      }
     }
   }
 }
